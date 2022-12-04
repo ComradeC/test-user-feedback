@@ -1,0 +1,67 @@
+version: '3.8'
+services:
+  db:
+    build: /db
+    container_name: database
+    restart: always
+    hostname: pgdb
+    environment:
+      POSTGRES_DB: "test"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  rabbitmq:
+    build: /rabbitmq
+    container_name: rabbitmq
+    hostname: rabbits
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  servicedb:
+    build: /servicedb
+    container_name: servicedb
+    command: uvicorn WabbitHandler:app
+    environment:
+      - RABBITMQ_CONNECTION=amqp://guest:guest@rabbits:5672/
+      - DATABASE_URL=postgresql://postgres:postgres@pgdb:5432/test
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_started
+
+  frontend:
+    build: /frontend
+    command: tail -f /dev/null
+    container_name: frontend
+    volumes:
+      - frontend:/frontend
+
+  backend:
+    build: /backend
+    container_name: backend
+    command: python3 -m back
+    hostname: backend
+    environment:
+      - RABBITMQ_CONNECTION=amqp://guest:guest@rabbits:5672/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - '80:80'
+    volumes:
+      - frontend:/frontend
+
+volumes:
+  db:
+  frontend:

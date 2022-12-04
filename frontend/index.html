@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Заявка</title>
+    <script src="{{ static_url('js/jquery.js') }}"></script>
+    <script src="{{ static_url('js/jquery.validate.js') }}"></script>
+</head>
+<body>
+    <form id="feedbackForm">
+    <h3>Обращение</h3>
+    <p></p>
+    <label>Фамилия: <span>*</span></label>
+    <input type="text" required name="surname"/>
+    <label>Имя: <span>*</span></label>
+    <input type="text" required name="firstName"/>
+    <label>Отчество: <span>*</span></label>
+    <input type="text" required name="patronymic"/>
+        <p><label>Номер телефона: <span>*</span></label>
+            <input type="number" required name="phone"/></p>
+        <p><label>Текст обращения:</label>
+            <textarea required name="messageText"></textarea></p>
+    <input type="submit" onclick="sendAndForget()" value="Отправить"/>
+
+
+        <!-- JavaScript -->
+        <script>
+        $("form").validate();
+        </script>
+        <script>
+            async function sendAndForget() {
+                const formArray = $("#feedbackForm").serializeArray()
+                let data = {};
+                for (let i = 0; i < formArray.length; i++){
+                    data[formArray[i]['name']] = formArray[i]['value'];
+                }
+                await fetch("/publish", {method: "POST", body: JSON.stringify(data)});
+            }
+        </script>
+    </form>
+</body>
+</html>

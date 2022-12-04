@@ -1,0 +1,6 @@
+FROM debian
+
+WORKDIR /frontend
+
+COPY static ./static
+COPY index.html .

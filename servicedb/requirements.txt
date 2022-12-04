@@ -1,0 +1,6 @@
+fastapi
+SQLAlchemy
+psycopg2
+aio-pika
+asyncpg
+databases
