@@ -26,6 +26,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    extra_hosts:
+      - "iprabbitmq:127.0.0.1"
 
   servicedb:
     build: /servicedb
@@ -61,7 +63,9 @@ services:
       - '80:80'
     volumes:
       - frontend:/frontend
-
+    extra_hosts:
+      - "ipfrontend:127.0.0.1"
 volumes:
   db:
   frontend:
+
